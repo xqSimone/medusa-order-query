@@ -1,0 +1,58 @@
+name: ecommerce-next
+
+services:
+  redis:
+    image: valkey/valkey:latest
+    ports:
+      - "5101:6379"
+
+  postgres:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: medusa-ecommerce-next
+    ports:
+      - "5102:5432"
+    volumes:
+      - "postgres:/var/lib/postgresql/data:rw"
+      - ./dev/local/postgres:/dumps
+
+  pgadmin:
+    image: dpage/pgadmin4
+    profiles:
+      - development
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5105:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+
+  traefik:
+    image: traefik:v3.2
+    profiles:
+      - production
+    command:
+      - --log.level=INFO
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=true
+      - --providers.docker.network=ecommerce-next_default
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  postgres:
+  pgadmin:
