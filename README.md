@@ -6,7 +6,7 @@
 
 2. setup postgres
 ```bash
-docker compose up pgadmin --detach
+docker compose up --detach
 ```
 
 3. install dependencies
