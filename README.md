@@ -1,7 +1,9 @@
+bug report: https://github.com/medusajs/medusa/issues/10403
+
 1. Copy the `.env.example` file to `.env`:
 
 ```shell
-  cp .env.example .env
+cp .env.example .env
 ```
 
 2. setup postgres
